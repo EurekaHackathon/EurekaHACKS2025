@@ -1,39 +1,48 @@
-import { cookies } from "next/headers";
-import { authorizeSession } from "@/lib/sessions";
-import { DashboardProvider } from "@/components/DashboardProvider";
-import { DashboardNav } from "@/components/DashboardNav";
-import { Toaster } from "@/components/Toaster";
-import { getApplicationStatus, getRsvpStatus } from "@/lib/sqlc/application_sql";
-import { db } from "@/lib/database";
+import ArchivedNotice from "@/components/ArchivedNotice";
+
+// import { cookies } from "next/headers";
+// import { authorizeSession } from "@/lib/sessions";
+// import { DashboardProvider } from "@/components/DashboardProvider";
+// import { DashboardNav } from "@/components/DashboardNav";
+// import { Toaster } from "@/components/Toaster";
+// import { getApplicationStatus, getRsvpStatus } from "@/lib/sqlc/application_sql";
+// import { db } from "@/lib/database";
 
 export default async function Layout({
                                          children,
                                      }: Readonly<{
     children: React.ReactNode;
 }>) {
-    const cookieStore = await cookies();
-    const sessionCookie = cookieStore.get("session");
-    const user = await authorizeSession(sessionCookie?.value);
+    // EurekaHACKS 2025 is over and the database is offline. Short-circuiting the layout keeps every
+    // dashboard route, including admin, from querying the dead database.
+    // const cookieStore = await cookies();
+    // const sessionCookie = cookieStore.get("session");
+    // const user = await authorizeSession(sessionCookie?.value);
+    //
+    // const isDevBypass = process.env.DEV === "true" && sessionCookie?.value === "dev-session";
+    // const applicationStatus = isDevBypass ? null : await getApplicationStatus(db, {
+    //     userId: user.id
+    // });
+    // const rsvpStatus = isDevBypass ? null : await getRsvpStatus(db, {
+    //     userId: user.id
+    // });
+    // return (
+    //     <>
+    //         <DashboardProvider value={{user, applicationStatus, rsvpStatus: rsvpStatus !== null}}>
+    //             <div className="min-h-screen flex flex-row w-full">
+    //                 <DashboardNav/>
+    //                 <div className="overflow-hidden w-full lg:px-20">
+    //                     {children}
+    //                 </div>
+    //             </div>
+    //         </DashboardProvider>
+    //         <Toaster/>
+    //     </>
+    //
+    // );
 
-    const isDevBypass = process.env.DEV === "true" && sessionCookie?.value === "dev-session";
-    const applicationStatus = isDevBypass ? null : await getApplicationStatus(db, {
-        userId: user.id
-    });
-    const rsvpStatus = isDevBypass ? null : await getRsvpStatus(db, {
-        userId: user.id
-    });
-    return (
-        <>
-            <DashboardProvider value={{user, applicationStatus, rsvpStatus: rsvpStatus !== null}}>
-                <div className="min-h-screen flex flex-row w-full">
-                    <DashboardNav/>
-                    <div className="overflow-hidden w-full lg:px-20">
-                        {children}
-                    </div>
-                </div>
-            </DashboardProvider>
-            <Toaster/>
-        </>
-
-    );
+    return <ArchivedNotice
+        title="The hacker dashboard is closed"
+        description="EurekaHACKS 2025 has wrapped up, so the dashboard is no longer available."
+    />;
 }
